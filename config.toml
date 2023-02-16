@@ -8,7 +8,7 @@ compile_sass = true
 build_search_index = true 
 
 title = "Joeyscat"
-description = "记录"
+description = "记录A"
 
 theme = "hook"
 
