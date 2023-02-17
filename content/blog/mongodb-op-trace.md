@@ -189,9 +189,12 @@ update、remove、query操作都有记录附加的comment信息
 
 
 [^1]: https://www.mongodb.com/docs/manual/reference/method/cursor.comment/
-[^2]: https://www.mongodb.com/docs/manual/reference/system-collections/#mongodb-data--database-.system.profile
-[^3]: https://www.mongodb.com/docs/manual/reference/log-messages/#mongodb-data-QUERY
-[^4]: https://www.mongodb.com/docs/manual/reference/log-messages/
-[^5]: https://www.mongodb.com/docs/manual/reference/method/db.currentOp/#mongodb-method-db.currentOp
 
+[^2]: https://www.mongodb.com/docs/manual/reference/system-collections/#mongodb-data--database-.system.profile
+
+[^3]: https://www.mongodb.com/docs/manual/reference/log-messages/#mongodb-data-QUERY
+
+[^4]: https://www.mongodb.com/docs/manual/reference/log-messages/
+
+[^5]: https://www.mongodb.com/docs/manual/reference/method/db.currentOp/#mongodb-method-db.currentOp
 
