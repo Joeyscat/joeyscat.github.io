@@ -2,8 +2,6 @@
 title = "MongoDB更新数组元素"
 description = "文档中内嵌了数组时，如何更新数组中的元素"
 date = 2022-01-08
-[taxonomies]
-tags = ["mongodb"]
 +++
 
 原文档
