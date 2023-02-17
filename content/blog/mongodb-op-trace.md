@@ -9,11 +9,11 @@ date = 2022-08-12
 
 ## comment
 
-> comment()[1^] associates a comment string with the find operation. This can make it easier to track a particular query in the following diagnostic outputs:
+> comment()[^1] associates a comment string with the find operation. This can make it easier to track a particular query in the following diagnostic outputs:
 >
-> - The system.profile[2^]
-> - The QUERY[3^] log[4^] component
-> - db.currentOp()[5^]
+> - The system.profile[^2]
+> - The QUERY[^3] log[^4] component
+> - db.currentOp()[^5]
 >
 > https://www.mongodb.com/docs/manual/reference/method/cursor.comment/#behavior
 
@@ -188,10 +188,10 @@ rds_dQYstkOj [direct: primary] mcm> db.system.profile.find({},{op:1,ns:1,command
 update、remove、query操作都有记录附加的comment信息
 
 
-[1^]: https://www.mongodb.com/docs/manual/reference/method/cursor.comment/
-[2^]: https://www.mongodb.com/docs/manual/reference/system-collections/#mongodb-data--database-.system.profile
-[3^]: https://www.mongodb.com/docs/manual/reference/log-messages/#mongodb-data-QUERY
-[4^]: https://www.mongodb.com/docs/manual/reference/log-messages/
-[5^]: https://www.mongodb.com/docs/manual/reference/method/db.currentOp/#mongodb-method-db.currentOp
+[^1]: https://www.mongodb.com/docs/manual/reference/method/cursor.comment/
+[^2]: https://www.mongodb.com/docs/manual/reference/system-collections/#mongodb-data--database-.system.profile
+[^3]: https://www.mongodb.com/docs/manual/reference/log-messages/#mongodb-data-QUERY
+[^4]: https://www.mongodb.com/docs/manual/reference/log-messages/
+[^5]: https://www.mongodb.com/docs/manual/reference/method/db.currentOp/#mongodb-method-db.currentOp
 
 
