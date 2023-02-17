@@ -1,10 +1,11 @@
 +++
 title = "MongoDB更新数组元素"
 description = "文档中内嵌了数组时，如何更新数组中的元素"
+tags = ["mongodb"]
 date = 2022-01-08
 +++
 
-**原文档**
+原文档
 
 ```js
 [
@@ -30,7 +31,7 @@ date = 2022-01-08
 
 `comments` 数组中的文档只记录 `author_id`，但是我们想加上一个字段 `author_name` 方便查询。
 
-**可以这样[^1]：**
+可以这样[^1]：
 
 ```js
 db.article.updateMany(
@@ -52,7 +53,7 @@ db.article.updateMany(
 
 `{ comments: { $exists: true, $ne: [] } },` 是为了过滤掉没有 `comments` 的文档。
 
-**更新后的文档：**
+更新后的文档：
 
 ```js
 [
