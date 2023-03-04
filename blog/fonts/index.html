@@ -1,0 +1,20 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta content="width=device-width,initial-scale=1" name=viewport><meta name=description><title>周宇的网络日志 | 字体收藏</title><link href="https://joeyscat.github.io/style.css?h=a56f213afcf5d255b64918e7a9e0f468ef1d0ac2954b49f36003998666482371" rel=stylesheet><body><header class=space><a href=https://joeyscat.github.io>← Home</a></header><main><h1>字体收藏</h1><p class=secondary>15 March, 2022<div class=space></div><p>这个网站收藏着大量优秀的字体<p>https://www.nerdfonts.com/<p>其中一个在终端上体验不错的字体： Hack Nerd Font Mono</main><div class=dark-mode-buttons><button class=dark-mode-button id=dark-mode-on><img alt="Dark mode" aria-label="dark mode toggle" title="Dark mode" height=24 src=https://joeyscat.github.io/dark_mode.svg width=24></button><button class=dark-mode-button id=dark-mode-off><img alt="Light mode" aria-label="light mode toggle" title="Light mode" height=24 src=https://joeyscat.github.io/light_mode.svg width=24></button></div><script>const cls = document.body.classList;
+        const getSessionTheme = sessionStorage.getItem("theme");
+        if (getSessionTheme === "dark") {
+            cls.toggle("dark-mode", true);
+        } else if (getSessionTheme === "light") {
+            cls.toggle("dark-mode", false);
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            cls.toggle("dark-mode", true);
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", true);
+            sessionStorage.setItem("theme", "dark");
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", false);
+            sessionStorage.setItem("theme", "light");
+        });</script><noscript><style>.dark-mode-buttons {
+                display: none;
+            }</style></noscript>

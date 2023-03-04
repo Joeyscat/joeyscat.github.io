@@ -1,0 +1,20 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta content="width=device-width,initial-scale=1" name=viewport><meta content=记录 name=description><title>周宇的网络日志 | 历史</title><link href="https://joeyscat.github.io/style.css?h=a56f213afcf5d255b64918e7a9e0f468ef1d0ac2954b49f36003998666482371" rel=stylesheet><body><header class=space><a href=https://joeyscat.github.io>← Home</a></header><main><h1>历史</h1><h2>2023</h2><ul><li><a href=https://joeyscat.github.io/blog/k8s/>k8s 笔记</a></ul><h2>2022</h2><ul><li><a href=https://joeyscat.github.io/blog/mongodb-op-trace/>MongoDB 利用 comment 跟踪操作</a><li><a href=https://joeyscat.github.io/blog/fonts/>字体收藏</a><li><a href=https://joeyscat.github.io/blog/vscode-configuration/>vscode 常用配置</a><li><a href=https://joeyscat.github.io/blog/b-tree/>B+树的一点疑问</a><li><a href=https://joeyscat.github.io/blog/gcc/>GCC 笔记</a><li><a href=https://joeyscat.github.io/blog/percona-server-mongodb-build/>Percona Server for MongoDB 源码编译</a><li><a href=https://joeyscat.github.io/blog/mongodb-array-element-update/>MongoDB更新数组元素</a></ul></main><div class=dark-mode-buttons><button class=dark-mode-button id=dark-mode-on><img alt="Dark mode" aria-label="dark mode toggle" title="Dark mode" height=24 src=https://joeyscat.github.io/dark_mode.svg width=24></button><button class=dark-mode-button id=dark-mode-off><img alt="Light mode" aria-label="light mode toggle" title="Light mode" height=24 src=https://joeyscat.github.io/light_mode.svg width=24></button></div><script>const cls = document.body.classList;
+        const getSessionTheme = sessionStorage.getItem("theme");
+        if (getSessionTheme === "dark") {
+            cls.toggle("dark-mode", true);
+        } else if (getSessionTheme === "light") {
+            cls.toggle("dark-mode", false);
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            cls.toggle("dark-mode", true);
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", true);
+            sessionStorage.setItem("theme", "dark");
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", false);
+            sessionStorage.setItem("theme", "light");
+        });</script><noscript><style>.dark-mode-buttons {
+                display: none;
+            }</style></noscript>

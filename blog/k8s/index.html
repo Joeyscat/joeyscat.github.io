@@ -1,0 +1,24 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta content="width=device-width,initial-scale=1" name=viewport><meta name=description><title>周宇的网络日志 | k8s 笔记</title><link href="https://joeyscat.github.io/style.css?h=a56f213afcf5d255b64918e7a9e0f468ef1d0ac2954b49f36003998666482371" rel=stylesheet><body><header class=space><a href=https://joeyscat.github.io>← Home</a></header><main><h1>k8s 笔记</h1><p class=secondary>4 March, 2023<div class=space></div><h2 id=podjing-xiang-la-qu-chao-shi>Pod镜像拉取超时</h2><pre style=background-color:#31333d;color:#ffffffc4;><code><span>  Warning  Failed     17m                 kubelet            Failed to pull image "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0": rpc error: code = Unknown desc = failed to pull and unpack image "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0": failed to resolve reference "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0": failed to do request: Head "https://asia-east1-docker.pkg.dev/v2/k8s-artifacts-prod/images/sig-storage/csi-node-driver-registrar/manifests/v2.7.0": dial tcp 74.125.203.82:443: i/o timeout
+</span><span>  Normal   BackOff    12m (x31 over 25m)  kubelet            Back-off pulling image "registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0"
+</span></code></pre><p>通过国内源拉取，再打上相应的标签<pre style=background-color:#31333d;color:#ffffffc4;><code><span>> ctr -n k8s.io i pull registry.cn-hangzhou.aliyuncs.com/google_containers/csi-node-driver-registrar:v2.7.0
+</span><span>> ctr -n k8s.io image tag registry.cn-hangzhou.aliyuncs.com/google_containers/csi-node-driver-registrar:v2.7.0 registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.7.0
+</span></code></pre></main><div class=dark-mode-buttons><button class=dark-mode-button id=dark-mode-on><img alt="Dark mode" aria-label="dark mode toggle" title="Dark mode" height=24 src=https://joeyscat.github.io/dark_mode.svg width=24></button><button class=dark-mode-button id=dark-mode-off><img alt="Light mode" aria-label="light mode toggle" title="Light mode" height=24 src=https://joeyscat.github.io/light_mode.svg width=24></button></div><script>const cls = document.body.classList;
+        const getSessionTheme = sessionStorage.getItem("theme");
+        if (getSessionTheme === "dark") {
+            cls.toggle("dark-mode", true);
+        } else if (getSessionTheme === "light") {
+            cls.toggle("dark-mode", false);
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            cls.toggle("dark-mode", true);
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", true);
+            sessionStorage.setItem("theme", "dark");
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", false);
+            sessionStorage.setItem("theme", "light");
+        });</script><noscript><style>.dark-mode-buttons {
+                display: none;
+            }</style></noscript>

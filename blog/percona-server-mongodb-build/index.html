@@ -1,0 +1,184 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta content="width=device-width,initial-scale=1" name=viewport><meta name=description><title>周宇的网络日志 | Percona Server for MongoDB 源码编译</title><link href="https://joeyscat.github.io/style.css?h=a56f213afcf5d255b64918e7a9e0f468ef1d0ac2954b49f36003998666482371" rel=stylesheet><body><header class=space><a href=https://joeyscat.github.io>← Home</a></header><main><h1>Percona Server for MongoDB 源码编译</h1><p class=secondary>19 January, 2022<div class=space></div><p>适用版本：<ul><li>Percona Server for MongoDB v5.0.3<li>Percona Server for MongoDB v3.6.23</ul><p>编译环境：<pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ cat /etc/os-release 
+</span><span>NAME="CentOS Linux"
+</span><span>VERSION="7 (Core)"
+</span><span>ID="centos"
+</span><span>ID_LIKE="rhel fedora"
+</span><span>VERSION_ID="7"
+</span><span>PRETTY_NAME="CentOS Linux 7 (Core)"
+</span><span>ANSI_COLOR="0;31"
+</span><span>CPE_NAME="cpe:/o:centos:centos:7"
+</span><span>HOME_URL="https://www.centos.org/"
+</span><span>BUG_REPORT_URL="https://bugs.centos.org/"
+</span><span>
+</span><span>CENTOS_MANTISBT_PROJECT="CentOS-7"
+</span><span>CENTOS_MANTISBT_PROJECT_VERSION="7"
+</span><span>REDHAT_SUPPORT_PRODUCT="centos"
+</span><span>REDHAT_SUPPORT_PRODUCT_VERSION="7"
+</span></code></pre><h2 id=huan-jing-zhun-bei>环境准备</h2><h3 id=clone-dai-ma>Clone 代码</h3><pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ git clone https://github.com/percona/percona-server-mongodb.git
+</span><span>...
+</span><span>❯ cd percona-server-mongodb && git checkout release-5.0.3-2
+</span></code></pre><h3 id=an-zhuang-yi-lai>安装依赖</h3><pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ sudo yum -y install centos-release-scl epel-release 
+</span><span>...
+</span><span>❯ sudo yum -y install python3 python3-devel scons gcc gcc-c++ cmake3 openssl-devel \
+</span><span>cyrus-sasl-devel snappy-devel zlib-devel bzip2-devel libcurl-devel lz4-devel \
+</span><span>openldap-devel krb5-devel xz-devel e2fsprogs-devel expat-devel devtoolset-8-gcc \
+</span><span>devtoolset-8-gcc-c++
+</span><span>...
+</span></code></pre><p><code>v5.x.x</code> 和 <code>v3.x.x</code> 依赖不同版本的Python来编译；<p>对于<code>v5.0.3</code>，官方指南指出需要<code>Python 3.7+</code>，我的环境中只有<code>Python 3.6.8</code>，也可以编译成功。<pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ python3 -V
+</span><span>Python 3.6.8
+</span><span>
+</span><span>❯ python3 -m pip -V
+</span><span>pip 9.0.3 from /usr/lib/python3.6/site-packages (python 3.6)
+</span><span>
+</span></code></pre><p>安装好对应Python后，接着安装编译、测试需要的三方库<pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ python3 -m pip install -r etc/pip/compile-requirements.txt
+</span></code></pre><p>对于<code>v3.6.23</code>，需要<code>Python 2.7+</code>，但是我在CentOS上的pip总在安装依赖库时报错，上网查了说是版本兼容性问题，建议直接安装<code>Miniconda</code>。<pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ wget https://repo.anaconda.com/miniconda/Miniconda2-py27_4.8.3-Linux-x86_64.sh
+</span><span>...
+</span><span>❯ bash Miniconda2-py27_4.8.3-Linux-x86_64.sh
+</span><span>...
+</span><span>
+</span><span>
+</span><span>❯ python2 -V
+</span><span>Python 2.7.18 :: Anaconda, Inc.
+</span><span>
+</span><span>❯ python2 -m pip -V
+</span><span>pip 19.3.1 from /home/jojo/miniconda2/lib/python2.7/site-packages/pip (python 2.7)
+</span></code></pre><p>安装好对应Python后，接着安装编译、测试需要的三方库<pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ python2.7 -m pip install -r buildscripts/requirements.txt
+</span></code></pre><h3 id=bian-yi-curl-7-66-0>编译 curl-7.66.0</h3><pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ wget https://curl.se/download/curl-7.66.0.tar.gz
+</span><span>❯ tar -xvzf curl-7.66.0.tar.gz && cd curl-7.66.0
+</span><span>❯ ./configure
+</span><span>...
+</span><span>❯ sudo make install
+</span><span>...
+</span></code></pre><h3 id=bian-yi-aws-sdk-cpp>编译 aws-sdk-cpp</h3><pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ mkdir -p /tmp/lib/aws
+</span><span>❯ export AWS_LIBS=/tmp/lib/aws
+</span><span>❯ git clone https://github.com/aws/aws-sdk-cpp.git
+</span><span>...
+</span><span>❯ cd aws-sdk-cpp && git checkout 1.8.56
+</span><span>❯ mkdir build && cd build
+</span><span>❯ cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_ONLY="s3;transfer" -DBUILD_SHARED_LIBS=OFF \
+</span><span>-DMINIMIZE_SIZE=ON -DCMAKE_INSTALL_PREFIX="${AWS_LIBS}"
+</span><span>...
+</span><span>❯ make install
+</span><span>...
+</span><span>
+</span></code></pre><h2 id=bian-yi-percona-server-for-mongodb>编译 Percona Server for MongoDB</h2><p><code>v5.0.3</code><pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ python3 buildscripts/scons.py CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
+</span><span>CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ -j16 --jlink=2  --disable-warnings-as-errors \
+</span><span>--ssl --opt=on --use-sasl-client --wiredtiger --audit --inmemory --hotbackup \
+</span><span>CPPPATH="${AWS_LIBS}/include" LIBPATH="${AWS_LIBS}/lib64" MONGO_VERSION=5.0.3 install-all
+</span><span>...
+</span></code></pre><p>二进制文件输出在 <code>build/install/bin/</code><p><code>v3.6.23</code><pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ python2 buildscripts/scons.py CC=/opt/rh/devtoolset-8/root/usr/bin/gcc \
+</span><span>CXX=/opt/rh/devtoolset-8/root/usr/bin/g++ -j16 --disable-warnings-as-errors --ssl \
+</span><span>--opt=on --use-sasl-client --wiredtiger --audit --inmemory --hotbackup \
+</span><span>CPPPATH="${AWS_LIBS}/include" LIBPATH="${AWS_LIBS}/lib64" MONGO_VERSION=3.6.23 all
+</span><span>...
+</span></code></pre><p>二进制文件输出在 <code>build/opt/mongo/</code><h2 id=zhu-yi-shi-xiang>注意事项</h2><h3 id=dong-tai-ku-jian-rong-wen-ti>动态库兼容问题</h3><p>在编译准备步骤中我们安装了 <code>devtoolset-8-gcc/devtoolset-8-gcc-c++</code>，在它的安装目录下有一个<code>libstdc++.so</code>。<pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ pwd
+</span><span>/opt/rh/devtoolset-8/root/usr/lib/gcc/x86_64-redhat-linux/8
+</span><span>
+</span><span>❯ ll
+</span><span>total 13708
+</span><span>...
+</span><span>-rw-r--r-- 1 root root 4887654 Mar 27  2020 libstdc++.a
+</span><span>...
+</span><span>-rw-r--r-- 1 root root 1928418 Mar 27  2020 libstdc++_nonshared.a
+</span><span>-rw-r--r-- 1 root root     210 Mar 27  2020 libstdc++.so
+</span><span>...
+</span><span>
+</span><span>❯ cat libstdc++.so
+</span><span>/* GNU ld script
+</span><span>   Use the shared library, but some functions are only in
+</span><span>   the static library, so try that secondarily.  */
+</span><span>OUTPUT_FORMAT(elf64-x86-64)
+</span><span>INPUT ( /usr/lib64/libstdc++.so.6 -lstdc++_nonshared )
+</span></code></pre><p>看文件大小就知道不可能是标准库，它是一个<code>链接脚本</code>，结合注释（使用共享库，但有些函数仅在静态库中，因此可以从第二个位置尝试。）与脚本内容可以猜出， 在链接<code>libstdc++.so</code>的时候，链接器会优先使用<code>/usr/lib64/libstdc++.so.6</code>进行链接，遇到了该库中不存在的函数（比如标准库新增的函数），就尝试使用静态库<code>libstdc++_nonshared.a</code>进行链接。所以我们编译出来的程序会依赖共享库<code>/usr/lib64/libstdc++.so.6</code>，需要确保这个共享库的版本与部署环境兼容。<pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ ldd mongod
+</span><span>        linux-vdso.so.1 =>  (0x00007ffc6cfbe000)
+</span><span>        libcurl.so.4 => /lib64/libcurl.so.4 (0x00007f98bd95e000)
+</span><span>        libgssapi_krb5.so.2 => /lib64/libgssapi_krb5.so.2 (0x00007f98bd711000)
+</span><span>        libsasl2.so.3 => /lib64/libsasl2.so.3 (0x00007f98bd4f4000)
+</span><span>        libldap-2.4.so.2 => /lib64/libldap-2.4.so.2 (0x00007f98bd29f000)
+</span><span>        liblber-2.4.so.2 => /lib64/liblber-2.4.so.2 (0x00007f98bd090000)
+</span><span>        libresolv.so.2 => /lib64/libresolv.so.2 (0x00007f98bce77000)
+</span><span>        libcrypto.so.10 => /lib64/libcrypto.so.10 (0x00007f98bca14000)
+</span><span>        libssl.so.10 => /lib64/libssl.so.10 (0x00007f98bc7a2000)
+</span><span>        libdl.so.2 => /lib64/libdl.so.2 (0x00007f98bc59e000)
+</span><span>        librt.so.1 => /lib64/librt.so.1 (0x00007f98bc396000)
+</span><span>        libstdc++.so.6 => /lib64/libstdc++.so.6 (0x00007f98bc08f000) # ！这里
+</span><span>        libm.so.6 => /lib64/libm.so.6 (0x00007f98bbd8d000)
+</span><span>        libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007f98bbb77000)
+</span><span>        libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f98bb95b000)
+</span><span>        libc.so.6 => /lib64/libc.so.6 (0x00007f98bb58e000)
+</span><span>        /lib64/ld-linux-x86-64.so.2 (0x00007f98c10a7000)
+</span><span>        libidn.so.11 => /lib64/libidn.so.11 (0x00007f98bb35b000)
+</span><span>        libssh2.so.1 => /lib64/libssh2.so.1 (0x00007f98bb12e000)
+</span><span>        libssl3.so => /lib64/libssl3.so (0x00007f98baedc000)
+</span><span>        libsmime3.so => /lib64/libsmime3.so (0x00007f98bacb5000)
+</span><span>        libnss3.so => /lib64/libnss3.so (0x00007f98ba988000)
+</span><span>        libnssutil3.so => /lib64/libnssutil3.so (0x00007f98ba759000)
+</span><span>        libplds4.so => /lib64/libplds4.so (0x00007f98ba555000)
+</span><span>        libplc4.so => /lib64/libplc4.so (0x00007f98ba350000)
+</span><span>        libnspr4.so => /lib64/libnspr4.so (0x00007f98ba112000)
+</span><span>        libkrb5.so.3 => /lib64/libkrb5.so.3 (0x00007f98b9e29000)
+</span><span>        libk5crypto.so.3 => /lib64/libk5crypto.so.3 (0x00007f98b9bf6000)
+</span><span>        libcom_err.so.2 => /lib64/libcom_err.so.2 (0x00007f98b99f2000)
+</span><span>        libz.so.1 => /lib64/libz.so.1 (0x00007f98b97dc000)
+</span><span>        libkrb5support.so.0 => /lib64/libkrb5support.so.0 (0x00007f98b95cc000)
+</span><span>        libkeyutils.so.1 => /lib64/libkeyutils.so.1 (0x00007f98b93c8000)
+</span><span>        libcrypt.so.1 => /lib64/libcrypt.so.1 (0x00007f98b9191000)
+</span><span>        libselinux.so.1 => /lib64/libselinux.so.1 (0x00007f98b8f6a000)
+</span><span>        libfreebl3.so => /lib64/libfreebl3.so (0x00007f98b8d67000)
+</span><span>        libpcre.so.1 => /lib64/libpcre.so.1 (0x00007f98b8b05000)
+</span></code></pre><p>或者，通过链接静态库消除动态库依赖的影响：编译前把上面提到的链接脚本<code>libstdc++.so</code>移除（或者改个名字），链接器会使用该路径下的静态库<code>libstdc++.a</code>。<pre style=background-color:#31333d;color:#ffffffc4;><code><span>❯ ldd mongod
+</span><span>        linux-vdso.so.1 =>  (0x00007ffd9a8bd000)
+</span><span>        libcurl.so.4 => /lib64/libcurl.so.4 (0x00007f5ace674000)
+</span><span>        libgssapi_krb5.so.2 => /lib64/libgssapi_krb5.so.2 (0x00007f5ace427000)
+</span><span>        libsasl2.so.3 => /lib64/libsasl2.so.3 (0x00007f5ace20a000)
+</span><span>        libldap-2.4.so.2 => /lib64/libldap-2.4.so.2 (0x00007f5acdfb5000)
+</span><span>        liblber-2.4.so.2 => /lib64/liblber-2.4.so.2 (0x00007f5acdda6000)
+</span><span>        libresolv.so.2 => /lib64/libresolv.so.2 (0x00007f5acdb8d000)
+</span><span>        libcrypto.so.10 => /lib64/libcrypto.so.10 (0x00007f5acd72a000)
+</span><span>        libssl.so.10 => /lib64/libssl.so.10 (0x00007f5acd4b8000)
+</span><span>        libdl.so.2 => /lib64/libdl.so.2 (0x00007f5acd2b4000)
+</span><span>        librt.so.1 => /lib64/librt.so.1 (0x00007f5acd0ac000)
+</span><span>        libm.so.6 => /lib64/libm.so.6 (0x00007f5accdaa000)
+</span><span>        libgcc_s.so.1 => /lib64/libgcc_s.so.1 (0x00007f5accb94000)
+</span><span>        libpthread.so.0 => /lib64/libpthread.so.0 (0x00007f5acc978000)
+</span><span>        libc.so.6 => /lib64/libc.so.6 (0x00007f5acc5ab000)
+</span><span>        /lib64/ld-linux-x86-64.so.2 (0x00007f5ad1ef8000)
+</span><span>        libidn.so.11 => /lib64/libidn.so.11 (0x00007f5acc378000)
+</span><span>        libssh2.so.1 => /lib64/libssh2.so.1 (0x00007f5acc14b000)
+</span><span>        libssl3.so => /lib64/libssl3.so (0x00007f5acbef9000)
+</span><span>        libsmime3.so => /lib64/libsmime3.so (0x00007f5acbcd2000)
+</span><span>        libnss3.so => /lib64/libnss3.so (0x00007f5acb9a5000)
+</span><span>        libnssutil3.so => /lib64/libnssutil3.so (0x00007f5acb776000)
+</span><span>        libplds4.so => /lib64/libplds4.so (0x00007f5acb572000)
+</span><span>        libplc4.so => /lib64/libplc4.so (0x00007f5acb36d000)
+</span><span>        libnspr4.so => /lib64/libnspr4.so (0x00007f5acb12f000)
+</span><span>        libkrb5.so.3 => /lib64/libkrb5.so.3 (0x00007f5acae46000)
+</span><span>        libk5crypto.so.3 => /lib64/libk5crypto.so.3 (0x00007f5acac13000)
+</span><span>        libcom_err.so.2 => /lib64/libcom_err.so.2 (0x00007f5acaa0f000)
+</span><span>        libz.so.1 => /lib64/libz.so.1 (0x00007f5aca7f9000)
+</span><span>        libkrb5support.so.0 => /lib64/libkrb5support.so.0 (0x00007f5aca5e9000)
+</span><span>        libkeyutils.so.1 => /lib64/libkeyutils.so.1 (0x00007f5aca3e5000)
+</span><span>        libcrypt.so.1 => /lib64/libcrypt.so.1 (0x00007f5aca1ae000)
+</span><span>        libselinux.so.1 => /lib64/libselinux.so.1 (0x00007f5ac9f87000)
+</span><span>        libfreebl3.so => /lib64/libfreebl3.so (0x00007f5ac9d84000)
+</span><span>        libpcre.so.1 => /lib64/libpcre.so.1 (0x00007f5ac9b22000)
+</span></code></pre><h2 id=can-kao>参考</h2><p><a href=https://github.com/percona/percona-server-mongodb/blob/master/CONTRIBUTING.rst>Percona Server for MongoDB 贡献指南</a></main><div class=dark-mode-buttons><button class=dark-mode-button id=dark-mode-on><img alt="Dark mode" aria-label="dark mode toggle" title="Dark mode" height=24 src=https://joeyscat.github.io/dark_mode.svg width=24></button><button class=dark-mode-button id=dark-mode-off><img alt="Light mode" aria-label="light mode toggle" title="Light mode" height=24 src=https://joeyscat.github.io/light_mode.svg width=24></button></div><script>const cls = document.body.classList;
+        const getSessionTheme = sessionStorage.getItem("theme");
+        if (getSessionTheme === "dark") {
+            cls.toggle("dark-mode", true);
+        } else if (getSessionTheme === "light") {
+            cls.toggle("dark-mode", false);
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            cls.toggle("dark-mode", true);
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", true);
+            sessionStorage.setItem("theme", "dark");
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", false);
+            sessionStorage.setItem("theme", "light");
+        });</script><noscript><style>.dark-mode-buttons {
+                display: none;
+            }</style></noscript>

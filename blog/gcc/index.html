@@ -1,0 +1,65 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta content="width=device-width,initial-scale=1" name=viewport><meta name=description><title>周宇的网络日志 | GCC 笔记</title><link href="https://joeyscat.github.io/style.css?h=a56f213afcf5d255b64918e7a9e0f468ef1d0ac2954b49f36003998666482371" rel=stylesheet><body><header class=space><a href=https://joeyscat.github.io>← Home</a></header><main><h1>GCC 笔记</h1><p class=secondary>10 February, 2022<div class=space></div><h2 id=chang-yong-options>常用OPTIONS</h2><ul><li>-c: Compile or assemble the source files, but do not link. The linking stage simply is not done. The ultimate output is in the form of an object file for each source file.</ul><p>对源文件进行编译或汇编，但不进行链接。源文件不包含main函数时，需要添加该选项才能编译通过。<ul><li>-m32: The -m32 option sets "int", "long", and pointer types to 32 bits, and generates code that runs on any i386 system.</ul><p>该选项使编译器生成能够在i386系统上运行的代码<ul><li>-fno-pie: Don't produce a dynamically linked position independent executable.</ul><p>没有这个选项，生成的文件会包含一些奇怪的东西 https://www.codeleading.com/article/21275815238/ https://stackoverflow.com/questions/50105581/how-do-i-get-rid-of-call-x86-get-pc-thunk-ax<h2 id=shi-li>示例</h2><h3 id=bian-yi-gua-yong-yu-32wei-ji-qi-de-dai-ma-ku>编译适用于32位机器的代码库</h3><pre class=language-bash data-lang=bash style=background-color:#31333d;color:#ffffffc4;><code class=language-bash data-lang=bash><span style=color:#db7c6d;>></span><span> cat </span><span style=font-weight:bold;color:#a3cbe3;>func_call_test1.c
+</span><span style=font-weight:bold;color:#a3cbe3;>int</span><span> add(int x, int y) {
+</span><span>        </span><span style=color:#db7c6d;>return</span><span> x + y</span><span style=color:#db7c6d;>;
+</span><span>}
+</span><span>
+</span><span style=font-weight:bold;color:#a3cbe3;>int</span><span> caller() {
+</span><span>        </span><span style=font-weight:bold;color:#a3cbe3;>int</span><span> t1 = 125</span><span style=color:#db7c6d;>;
+</span><span>        </span><span style=font-weight:bold;color:#a3cbe3;>int</span><span> t2 = 80</span><span style=color:#db7c6d;>;
+</span><span>        </span><span style=font-weight:bold;color:#a3cbe3;>int</span><span> sum = add(t1, t2)</span><span style=color:#db7c6d;>;
+</span><span>
+</span><span>        </span><span style=color:#db7c6d;>return</span><span> sum</span><span style=color:#db7c6d;>;
+</span><span>}
+</span><span>
+</span><span style=color:#db7c6d;>></span><span> gcc </span><span style=font-weight:bold;color:#a3cbe3;>-c</span><span style=color:#ffffff;> -m32 -fno-pie</span><span> func_call_test1.c
+</span><span>
+</span><span style=color:#db7c6d;>></span><span> objdump </span><span style=font-weight:bold;color:#a3cbe3;>-d</span><span> func_call_test1.o
+</span><span>
+</span><span style=font-weight:bold;color:#a3cbe3;>func_call_test1.o:</span><span>     file format elf32-i386
+</span><span>
+</span><span>
+</span><span style=font-weight:bold;color:#a3cbe3;>Disassembly</span><span> of section .text:
+</span><span>
+</span><span style=font-weight:bold;color:#a3cbe3;>00000000 </span><span style=color:#db7c6d;><</span><span>add</span><span style=color:#db7c6d;>></span><span>:
+</span><span>   </span><span style=font-weight:bold;color:#a3cbe3;>0:</span><span>   55                      push   </span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp
+</span><span>   </span><span style=font-weight:bold;color:#a3cbe3;>1:</span><span>   89 e5                   mov    </span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>esp</span><span>,</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp
+</span><span>   </span><span style=font-weight:bold;color:#a3cbe3;>3:</span><span>   8b 55 08                mov    0x8(</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp</span><span>)</span><span style=font-weight:bold;color:#a3cbe3;>,</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>edx
+</span><span>   </span><span style=font-weight:bold;color:#a3cbe3;>6:</span><span>   8b 45 0c                mov    0xc(</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp</span><span>)</span><span style=font-weight:bold;color:#a3cbe3;>,</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>eax
+</span><span>   </span><span style=font-weight:bold;color:#a3cbe3;>9:</span><span>   01 d0                   add    </span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>edx</span><span>,</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>eax
+</span><span>   </span><span style=font-weight:bold;color:#a3cbe3;>b:</span><span>   5d                      pop    </span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp
+</span><span>   </span><span style=font-weight:bold;color:#a3cbe3;>c:</span><span>   c3                      ret
+</span><span>
+</span><span style=font-weight:bold;color:#a3cbe3;>0000000d </span><span style=color:#db7c6d;><</span><span>caller</span><span style=color:#db7c6d;>></span><span>:
+</span><span>   </span><span style=font-weight:bold;color:#a3cbe3;>d:</span><span>   55                      push   </span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp
+</span><span>   </span><span style=font-weight:bold;color:#a3cbe3;>e:</span><span>   89 e5                   mov    </span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>esp</span><span>,</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>10:</span><span>   83 ec 10                sub    </span><span style=font-weight:bold;color:#dbbb3d;>$</span><span style=font-weight:bold;color:#a3cbe3;>0</span><span>x10,</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>esp
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>13:</span><span>   c7 45 f4 7d 00 00 00    movl   </span><span style=font-weight:bold;color:#dbbb3d;>$</span><span style=font-weight:bold;color:#a3cbe3;>0</span><span>x7d,-0xc(</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp</span><span>)
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>1a:</span><span>   c7 45 f8 50 00 00 00    movl   </span><span style=font-weight:bold;color:#dbbb3d;>$</span><span style=font-weight:bold;color:#a3cbe3;>0</span><span>x50,-0x8(</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp</span><span>)
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>21:</span><span>   ff 75 f8                pushl</span><span style=color:#ffffff;>  -0x8</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp</span><span>)
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>24:</span><span>   ff 75 f4                pushl</span><span style=color:#ffffff;>  -0xc</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp</span><span>)
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>27:</span><span>   e8 fc ff ff ff          call   28 </span><span style=color:#db7c6d;><</span><span>caller+0x1b</span><span style=color:#db7c6d;>>
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>2c:</span><span>   83 c4 08                add    </span><span style=font-weight:bold;color:#dbbb3d;>$</span><span style=font-weight:bold;color:#a3cbe3;>0</span><span>x8,</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>esp
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>2f:</span><span>   89 45 fc                mov    </span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>eax</span><span>,-0x4(</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp</span><span>)
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>32:</span><span>   8b 45 fc                mov</span><span style=color:#ffffff;>    -0x4</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>ebp</span><span>)</span><span style=font-weight:bold;color:#a3cbe3;>,</span><span style=font-weight:bold;color:#dbbb3d;>%</span><span style=font-weight:bold;color:#a3cbe3;>eax
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>35:</span><span>   c9                      leave
+</span><span>  </span><span style=font-weight:bold;color:#a3cbe3;>36:</span><span>   c3
+</span></code></pre></main><div class=dark-mode-buttons><button class=dark-mode-button id=dark-mode-on><img alt="Dark mode" aria-label="dark mode toggle" title="Dark mode" height=24 src=https://joeyscat.github.io/dark_mode.svg width=24></button><button class=dark-mode-button id=dark-mode-off><img alt="Light mode" aria-label="light mode toggle" title="Light mode" height=24 src=https://joeyscat.github.io/light_mode.svg width=24></button></div><script>const cls = document.body.classList;
+        const getSessionTheme = sessionStorage.getItem("theme");
+        if (getSessionTheme === "dark") {
+            cls.toggle("dark-mode", true);
+        } else if (getSessionTheme === "light") {
+            cls.toggle("dark-mode", false);
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            cls.toggle("dark-mode", true);
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", true);
+            sessionStorage.setItem("theme", "dark");
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", false);
+            sessionStorage.setItem("theme", "light");
+        });</script><noscript><style>.dark-mode-buttons {
+                display: none;
+            }</style></noscript>

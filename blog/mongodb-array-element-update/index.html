@@ -1,0 +1,75 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta content="width=device-width,initial-scale=1" name=viewport><meta content=文档中内嵌了数组时，如何更新数组中的元素 name=description><title>周宇的网络日志 | MongoDB更新数组元素</title><link href="https://joeyscat.github.io/style.css?h=a56f213afcf5d255b64918e7a9e0f468ef1d0ac2954b49f36003998666482371" rel=stylesheet><body><header class=space><a href=https://joeyscat.github.io>← Home</a></header><main><h1>MongoDB更新数组元素</h1><p class=secondary>8 January, 2022<div class=space></div><p>原文档<pre class=language-js data-lang=js style=background-color:#31333d;color:#ffffffc4;><code class=language-js data-lang=js><span>[
+</span><span>  {
+</span><span>    _id</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d96f26284728a5cbd2b5da</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>),
+</span><span>    title</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>你好啊</span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>,
+</span><span>    raw_content</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>你好！！！！！！！！！！！！！！！！！！！！！！！！！！！！！</span><span style=font-weight:bold;color:#a2ba43;>\r\n\r\n</span><span>+1</span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>,
+</span><span>    author_id</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d96e0af67275682b21ec9d</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>),
+</span><span>    comments</span><span style=font-weight:bold;color:#db7c6d;>: </span><span>[
+</span><span>      {
+</span><span>        content</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>好啊👌</span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>,
+</span><span>        author_id</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d96e0af67275682b21ec9d</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>)
+</span><span>      },
+</span><span>      {
+</span><span>        content</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>好啥呀？？</span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>,
+</span><span>        author_id</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d70cdc4a138b2ed4f4b087</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>),
+</span><span>        reply_to</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d96e0af67275682b21ec9d</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>)
+</span><span>      }
+</span><span>    ]
+</span><span>  }
+</span><span>]
+</span></code></pre><p><code>comments</code> 数组中的文档只记录 <code>author_id</code>，但是我们想加上一个字段 <code>author_name</code> 方便查询。<p>可以这样<sup class=footnote-reference><a href=#1>1</a></sup>：<pre class=language-js data-lang=js style=background-color:#31333d;color:#ffffffc4;><code class=language-js data-lang=js><span style=font-weight:bold;color:#a3cbe3;>db</span><span>.</span><span style=font-weight:bold;color:#a3cbe3;>article</span><span>.</span><span style=color:#a2ba43;>updateMany</span><span>(
+</span><span>  { comments</span><span style=font-weight:bold;color:#db7c6d;>: </span><span>{ $exists</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#ffffff;>true</span><span>, $ne</span><span style=font-weight:bold;color:#db7c6d;>: </span><span>[] } },
+</span><span>  {
+</span><span>    $set</span><span style=font-weight:bold;color:#db7c6d;>: </span><span>{
+</span><span>      </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>comments.$[elem].author_name</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>Joeyscat</span><span style=font-weight:bold;color:#dbbb3d;>"
+</span><span>    }
+</span><span>  },
+</span><span>  {
+</span><span>    arrayFilters</span><span style=font-weight:bold;color:#db7c6d;>: </span><span>[
+</span><span>      {
+</span><span>        </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>elem.author_id</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d70cdc4a138b2ed4f4b087</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>)
+</span><span>      }
+</span><span>    ]
+</span><span>  }
+</span><span>)
+</span></code></pre><p><code>{ comments: { $exists: true, $ne: [] } },</code> 是为了过滤掉没有 <code>comments</code> 的文档。<p>更新后的文档：<pre class=language-js data-lang=js style=background-color:#31333d;color:#ffffffc4;><code class=language-js data-lang=js><span>[
+</span><span>  {
+</span><span>    _id</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d96f26284728a5cbd2b5da</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>),
+</span><span>    title</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>你好啊</span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>,
+</span><span>    raw_content</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>你好！！！！！！！！！！！！！！！！！！！！！！！！！！！！！</span><span style=font-weight:bold;color:#a2ba43;>\r\n\r\n</span><span>+1</span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>,
+</span><span>    author_id</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d96e0af67275682b21ec9d</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>),
+</span><span>    comments</span><span style=font-weight:bold;color:#db7c6d;>: </span><span>[
+</span><span>      {
+</span><span>        content</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>好啊👌</span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>,
+</span><span>        author_id</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d96e0af67275682b21ec9d</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>)
+</span><span>        </span><span style=font-weight:bold;color:#a3cbe3;>author_name</span><span>: </span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>rustman</span><span style=font-weight:bold;color:#dbbb3d;>'
+</span><span>      },
+</span><span>      {
+</span><span>        content</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>好啥呀？？</span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>,
+</span><span>        author_id</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d70cdc4a138b2ed4f4b087</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>),
+</span><span>        reply_to</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=color:#a2ba43;>ObjectId</span><span>(</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>61d96e0af67275682b21ec9d</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>),
+</span><span>        author_name</span><span style=font-weight:bold;color:#db7c6d;>: </span><span style=font-weight:bold;color:#dbbb3d;>'</span><span>Joeyscat</span><span style=font-weight:bold;color:#dbbb3d;>'
+</span><span>      }
+</span><span>    ]
+</span><span>  }
+</span><span>]
+</span></code></pre><div class=footnote-definition id=1><sup class=footnote-definition-label>1</sup><p><a href=https://docs.mongodb.com/manual/reference/operator/update/positional-filtered/#update-all-documents-that-match-arrayfilters-in-an-array>Update All Documents That Match arrayFilters in an Array</a></div></main><div class=dark-mode-buttons><button class=dark-mode-button id=dark-mode-on><img alt="Dark mode" aria-label="dark mode toggle" title="Dark mode" height=24 src=https://joeyscat.github.io/dark_mode.svg width=24></button><button class=dark-mode-button id=dark-mode-off><img alt="Light mode" aria-label="light mode toggle" title="Light mode" height=24 src=https://joeyscat.github.io/light_mode.svg width=24></button></div><script>const cls = document.body.classList;
+        const getSessionTheme = sessionStorage.getItem("theme");
+        if (getSessionTheme === "dark") {
+            cls.toggle("dark-mode", true);
+        } else if (getSessionTheme === "light") {
+            cls.toggle("dark-mode", false);
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            cls.toggle("dark-mode", true);
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", true);
+            sessionStorage.setItem("theme", "dark");
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", false);
+            sessionStorage.setItem("theme", "light");
+        });</script><noscript><style>.dark-mode-buttons {
+                display: none;
+            }</style></noscript>

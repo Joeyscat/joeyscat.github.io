@@ -1,0 +1,45 @@
+<!doctype html><html lang=en><head><meta charset=utf-8><meta content="width=device-width,initial-scale=1" name=viewport><meta content=文档中内嵌了数组时，如何更新数组中的元素 name=description><title>周宇的网络日志 | vscode 常用配置</title><link href="https://joeyscat.github.io/style.css?h=a56f213afcf5d255b64918e7a9e0f468ef1d0ac2954b49f36003998666482371" rel=stylesheet><body><header class=space><a href=https://joeyscat.github.io>← Home</a></header><main><h1>vscode 常用配置</h1><p class=secondary>13 March, 2022<div class=space></div><h1 id=c-c-xiang-mu-pei-zhi>C/C++项目配置</h1><p>.vscode/c_cpp_properties.json<pre class=language-json data-lang=json style=background-color:#31333d;color:#ffffffc4;><code class=language-json data-lang=json><span>{
+</span><span>    </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>configurations</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>: [
+</span><span>        {
+</span><span>            </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>name</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>: </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>Linux</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>,        
+</span><span>            </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>includePath</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>: [
+</span><span>                </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>${workspaceFolder}/**</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>, </span><span style=color:#707180;>// 头文件目录
+</span><span>                </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>am/include</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>,
+</span><span>                </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>klib/include</span><span style=font-weight:bold;color:#dbbb3d;>"
+</span><span>            ],
+</span><span>            </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>defines</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>: [
+</span><span>                </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>__GUEST_ISA_=native</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>, </span><span style=color:#707180;>// 宏定义
+</span><span>                </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>__ISA__=native</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>,
+</span><span>                </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>ITRACE_COND=true</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>,
+</span><span>                </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>__DIFF_REF_QEMU__</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>,
+</span><span>                </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>__ENGINE_interpreter__</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>,
+</span><span>                </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>__ISA_native__</span><span style=font-weight:bold;color:#dbbb3d;>"
+</span><span>            ],
+</span><span>            </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>compilerPath</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>: </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>/usr/bin/gcc</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>,
+</span><span>            </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>cStandard</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>: </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>c17</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>,
+</span><span>            </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>cppStandard</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>: </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>c++17</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>,
+</span><span>            </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>intelliSenseMode</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>: </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>clang-x64</span><span style=font-weight:bold;color:#dbbb3d;>"
+</span><span>        }
+</span><span>    ],
+</span><span>    </span><span style=font-weight:bold;color:#dbbb3d;>"</span><span style=color:#ffffff;>version</span><span style=font-weight:bold;color:#dbbb3d;>"</span><span>: </span><span style=color:#db7c6d;>4
+</span><span>}
+</span></code></pre></main><div class=dark-mode-buttons><button class=dark-mode-button id=dark-mode-on><img alt="Dark mode" aria-label="dark mode toggle" title="Dark mode" height=24 src=https://joeyscat.github.io/dark_mode.svg width=24></button><button class=dark-mode-button id=dark-mode-off><img alt="Light mode" aria-label="light mode toggle" title="Light mode" height=24 src=https://joeyscat.github.io/light_mode.svg width=24></button></div><script>const cls = document.body.classList;
+        const getSessionTheme = sessionStorage.getItem("theme");
+        if (getSessionTheme === "dark") {
+            cls.toggle("dark-mode", true);
+        } else if (getSessionTheme === "light") {
+            cls.toggle("dark-mode", false);
+        } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            cls.toggle("dark-mode", true);
+        }
+
+        document.getElementById("dark-mode-on").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", true);
+            sessionStorage.setItem("theme", "dark");
+        });
+        document.getElementById("dark-mode-off").addEventListener("click", function(e) {
+            cls.toggle("dark-mode", false);
+            sessionStorage.setItem("theme", "light");
+        });</script><noscript><style>.dark-mode-buttons {
+                display: none;
+            }</style></noscript>
